@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /miserere
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/miserere
+    username: miserere
+    password: miserere
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # change to 'validate' or 'none' in production
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController
 class ProductController(
     private val productService: ProductService,
 ) {
-
     @GetMapping("/{id}")
     fun get(
         @PathVariable id: String,
@@ -30,6 +29,6 @@ class ProductController(
 
     @PostMapping
     fun create(
-        @RequestBody request: ProductDto
+        @RequestBody request: ProductDto,
     ) = productService.create(request)
 }

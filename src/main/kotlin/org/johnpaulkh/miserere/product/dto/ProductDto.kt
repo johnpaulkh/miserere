@@ -15,23 +15,28 @@ data class ProductDto(
         ) = ProductDto(
             id = product.id,
             name = product.name,
-            variants = variants.map { variant ->
-                VariantDto(
-                    id = variant.id,
-                    name = variant.name,
-                    price = variant.price,
-                    cogs = variant.cogs,
-                )
-            }
+            variants = variants.map(VariantDto.Companion::fromEntity).sortedBy { it.name },
         )
     }
 
     data class VariantDto(
         val id: String? = null,
+        val productId: String? = null,
         val name: String,
         val price: Long,
         val cogs: Long,
-    )
+    ) {
+        companion object {
+            fun fromEntity(variant: Variant) =
+                VariantDto(
+                    id = variant.id,
+                    productId = variant.productId,
+                    name = variant.name,
+                    price = variant.price,
+                    cogs = variant.cogs,
+                )
+        }
+    }
 }
 
 data class ProductListDto(
@@ -39,11 +44,10 @@ data class ProductListDto(
     val name: String,
 ) {
     companion object {
-        fun fromEntity(
-            product: Product,
-        ) = ProductListDto(
-            id = product.id,
-            name = product.name
-        )
+        fun fromEntity(product: Product) =
+            ProductListDto(
+                id = product.id,
+                name = product.name,
+            )
     }
 }

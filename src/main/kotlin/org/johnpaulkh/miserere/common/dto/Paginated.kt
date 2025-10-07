@@ -6,7 +6,7 @@ data class Paginated<T>(
     val size: Int,
     val count: Long,
     val totalPages: Int,
-    val data: List<T>
+    val data: List<T>,
 ) {
     companion object {
         fun <T> fromPage(
@@ -16,7 +16,7 @@ data class Paginated<T>(
             size = page.size,
             count = page.totalElements,
             totalPages = page.totalPages,
-            data = data
+            data = data,
         )
     }
 }

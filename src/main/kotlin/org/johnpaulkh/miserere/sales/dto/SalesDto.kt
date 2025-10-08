@@ -1,13 +1,13 @@
 package org.johnpaulkh.miserere.sales.dto
 
+import org.johnpaulkh.miserere.common.util.toDateString
 import org.johnpaulkh.miserere.sales.entity.Sales
 import org.johnpaulkh.miserere.sales.entity.SalesAddOn
 import org.johnpaulkh.miserere.sales.entity.SalesDetail
-import java.time.Instant
 
 data class SalesDto(
     val id: String? = null,
-    val date: Instant,
+    val date: String,
     val customer: String,
     val address: String,
     val logistic: String,
@@ -21,31 +21,33 @@ data class SalesDto(
             addOns: List<SalesAddOn>? = null,
         ) = SalesDto(
             id = sales.id,
-            date = sales.date,
+            date = sales.date.toDateString(),
             customer = sales.customer,
             logistic = sales.logistic,
             address = sales.address,
-            details = details.map { detail ->
-                SalesDetailDto(
-                    id = detail.id,
-                    productId = detail.productId,
-                    productName = detail.productName,
-                    variantId = detail.variantId,
-                    variantName = detail.variantName,
-                    price = detail.price,
-                    cogs = detail.cogs,
-                    quantity = detail.quantity
-                )
-            },
-            addOns = addOns?.map { addOn ->
-                SalesAddOnDto(
-                    id = addOn.id,
-                    addOnId = addOn.addOnId,
-                    addOnName = addOn.addOnName,
-                    addOnPrice = addOn.addOnPrice,
-                    quantity = addOn.quantity,
-                )
-            } ?: emptyList<SalesAddOnDto>()
+            details =
+                details.map { detail ->
+                    SalesDetailDto(
+                        id = detail.id,
+                        productId = detail.productId,
+                        productName = detail.productName,
+                        variantId = detail.variantId,
+                        variantName = detail.variantName,
+                        price = detail.price,
+                        cogs = detail.cogs,
+                        quantity = detail.quantity,
+                    )
+                },
+            addOns =
+                addOns?.map { addOn ->
+                    SalesAddOnDto(
+                        id = addOn.id,
+                        addOnId = addOn.addOnId,
+                        addOnName = addOn.addOnName,
+                        addOnPrice = addOn.addOnPrice,
+                        quantity = addOn.quantity,
+                    )
+                } ?: emptyList<SalesAddOnDto>(),
         )
     }
 

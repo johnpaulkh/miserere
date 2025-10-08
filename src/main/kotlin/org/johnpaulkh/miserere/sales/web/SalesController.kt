@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.RestController
 class SalesController(
     private val salesService: SalesService,
 ) {
-
     @GetMapping
     fun list(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
-        @RequestParam(required = false) startDate: String,
-        @RequestParam(required = false) endDate: String,
+        @RequestParam(required = false) startDate: String? = null,
+        @RequestParam(required = false) endDate: String? = null,
     ) = salesService.list(page, size, startDate, endDate)
 
     @PostMapping

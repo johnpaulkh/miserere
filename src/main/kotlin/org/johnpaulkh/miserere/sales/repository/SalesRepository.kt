@@ -7,31 +7,29 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
 import java.time.Instant
 
 interface SalesRepository : JpaRepository<Sales, String> {
     @Query(
-        """
-            select s
-            from Sales s
-            where (:startDate is null or s.date >= :startDate)
-              and (:endDate is null or s.date <= :endDate)
-        """
+        nativeQuery = true,
+        value = """
+            SELECT *
+            FROM sales s
+            WHERE s.date >= ?1
+              AND s.date <= ?2
+        """,
     )
     fun findByDateBetween(
-        @Param("startDate") startDate: Instant? = null,
-        @Param("endDate") endDate: Instant? = null,
+        startDate: Instant,
+        endDate: Instant,
         pageable: Pageable,
-    ) : Page<Sales>
+    ): Page<Sales>
 }
 
 interface SalesDetailRepository : JpaRepository<SalesDetail, String> {
-
-    fun findAllBySalesIdIn(salesIds: List<String>) : List<SalesDetail>
+    fun findAllBySalesIdIn(salesIds: List<String>): List<SalesDetail>
 }
 
 interface SalesAddOnRepository : JpaRepository<SalesAddOn, String> {
-
-    fun findAllBySalesIdIn(salesIds: List<String>) : List<SalesAddOn>
+    fun findAllBySalesIdIn(salesIds: List<String>): List<SalesAddOn>
 }

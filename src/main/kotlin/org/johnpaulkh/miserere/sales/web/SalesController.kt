@@ -1,6 +1,6 @@
 package org.johnpaulkh.miserere.sales.web
 
-import org.johnpaulkh.miserere.sales.dto.SalesDto
+import org.johnpaulkh.miserere.sales.dto.SalesCreateDto
 import org.johnpaulkh.miserere.sales.service.SalesService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -24,6 +24,6 @@ class SalesController(
 
     @PostMapping
     fun create(
-        @RequestBody request: SalesDto,
+        @RequestBody request: SalesCreateDto,
     ) = salesService.create(request)
 }

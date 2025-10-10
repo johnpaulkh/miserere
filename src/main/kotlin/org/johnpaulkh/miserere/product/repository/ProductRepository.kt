@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface ProductRepository : JpaRepository<Product, String> {
-
     @Query(
         """
             select distinct p
@@ -19,15 +18,16 @@ interface ProductRepository : JpaRepository<Product, String> {
                 lower(p.name) like lower(concat('%', :search, '%'))
                 or
                 lower(v.name) like lower(concat('%', :search, '%'))
-        """
+        """,
     )
     fun findBySearch(
         @Param("search") search: String,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<Product>
-
 }
 
 interface VariantRepository : JpaRepository<Variant, String> {
     fun findByProductId(id: String): List<Variant>
+
+    fun findAllByProductIdIn(productIds: List<String>): List<Variant>
 }

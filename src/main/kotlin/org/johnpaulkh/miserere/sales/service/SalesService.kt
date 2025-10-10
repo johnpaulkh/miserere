@@ -1,10 +1,14 @@
 package org.johnpaulkh.miserere.sales.service
 
 import jakarta.transaction.Transactional
+import org.johnpaulkh.miserere.addon.repository.AddOnRepository
 import org.johnpaulkh.miserere.common.dto.Paginated
 import org.johnpaulkh.miserere.common.util.toInstant
 import org.johnpaulkh.miserere.common.util.today
 import org.johnpaulkh.miserere.common.util.tommorow
+import org.johnpaulkh.miserere.product.repository.ProductRepository
+import org.johnpaulkh.miserere.product.repository.VariantRepository
+import org.johnpaulkh.miserere.sales.dto.SalesCreateDto
 import org.johnpaulkh.miserere.sales.dto.SalesDto
 import org.johnpaulkh.miserere.sales.entity.Sales
 import org.johnpaulkh.miserere.sales.entity.SalesAddOn
@@ -23,9 +27,22 @@ class SalesService(
     private val salesRepository: SalesRepository,
     private val salesDetailRepository: SalesDetailRepository,
     private val salesAddOnRepository: SalesAddOnRepository,
+    private val productRepository: ProductRepository,
+    private val variantRepository: VariantRepository,
+    private val addOnRepository: AddOnRepository,
 ) {
     @Transactional
-    fun create(request: SalesDto): SalesDto {
+    fun create(request: SalesCreateDto): SalesDto {
+        val productIds = request.details.map { it.productId }
+        val productMap = productRepository.findAllById(productIds).associateBy { it.id }
+        val variantMap = variantRepository.findAllByProductIdIn(productIds).associateBy { it.id }
+        val addOnMap =
+            request.addOns
+                ?.map { it.addOnId }
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { addOnRepository.findAllById(it).associateBy { addOn -> addOn.id } }
+                ?: emptyMap()
+
         val sales =
             Sales(
                 date = request.date.toInstant()!!,
@@ -40,9 +57,9 @@ class SalesService(
                     SalesDetail(
                         salesId = sales.id!!,
                         productId = detail.productId,
-                        productName = detail.productName,
+                        productName = productMap[detail.productId]?.name ?: "",
                         variantId = detail.variantId,
-                        variantName = detail.variantName,
+                        variantName = variantMap[detail.variantId]?.name ?: "",
                         price = detail.price,
                         cogs = detail.cogs,
                         quantity = detail.quantity,
@@ -55,7 +72,7 @@ class SalesService(
                     SalesAddOn(
                         salesId = sales.id!!,
                         addOnId = addOn.addOnId,
-                        addOnName = addOn.addOnName,
+                        addOnName = addOnMap[addOn.addOnId]?.name ?: "",
                         addOnPrice = addOn.addOnPrice,
                         quantity = addOn.quantity,
                     )

@@ -70,3 +70,26 @@ data class SalesDto(
         val quantity: Int,
     )
 }
+
+data class SalesCreateDto(
+    val date: String,
+    val customer: String,
+    val logistic: String,
+    val address: String,
+    val details: List<SalesDetailCreateDto>,
+    val addOns: List<SalesAddOnCreateDto>? = emptyList(),
+) {
+    data class SalesDetailCreateDto(
+        val productId: String,
+        val variantId: String,
+        val quantity: Int,
+        val price: Long,
+        val cogs: Long,
+    )
+
+    data class SalesAddOnCreateDto(
+        val addOnId: String,
+        val addOnPrice: Long,
+        val quantity: Int,
+    )
+}

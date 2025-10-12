@@ -2,7 +2,6 @@ package org.johnpaulkh.miserere.sales.dto
 
 import org.johnpaulkh.miserere.common.util.toDateString
 import org.johnpaulkh.miserere.sales.entity.Sales
-import org.johnpaulkh.miserere.sales.entity.SalesAddOn
 import org.johnpaulkh.miserere.sales.entity.SalesDetail
 
 data class SalesDto(
@@ -12,13 +11,11 @@ data class SalesDto(
     val address: String,
     val logistic: String,
     val details: List<SalesDetailDto> = emptyList(),
-    val addOns: List<SalesAddOnDto>? = emptyList(),
 ) {
     companion object {
         fun fromEntity(
             sales: Sales,
             details: List<SalesDetail>,
-            addOns: List<SalesAddOn>? = null,
         ) = SalesDto(
             id = sales.id,
             date = sales.date.toDateString(),
@@ -36,18 +33,11 @@ data class SalesDto(
                         price = detail.price,
                         cogs = detail.cogs,
                         quantity = detail.quantity,
+                        adminFee = detail.adminFee,
+                        packingFee = detail.packingFee,
+                        packingFeePaid = detail.packingFeePaid,
                     )
                 },
-            addOns =
-                addOns?.map { addOn ->
-                    SalesAddOnDto(
-                        id = addOn.id,
-                        addOnId = addOn.addOnId,
-                        addOnName = addOn.addOnName,
-                        addOnPrice = addOn.addOnPrice,
-                        quantity = addOn.quantity,
-                    )
-                } ?: emptyList<SalesAddOnDto>(),
         )
     }
 
@@ -60,14 +50,9 @@ data class SalesDto(
         val price: Long,
         val cogs: Long,
         val quantity: Int,
-    )
-
-    data class SalesAddOnDto(
-        val id: String? = null,
-        val addOnId: String,
-        val addOnName: String,
-        val addOnPrice: Long,
-        val quantity: Int,
+        val adminFee: Long,
+        val packingFee: Long,
+        val packingFeePaid: Long,
     )
 }
 
@@ -77,7 +62,6 @@ data class SalesCreateDto(
     val logistic: String,
     val address: String,
     val details: List<SalesDetailCreateDto>,
-    val addOns: List<SalesAddOnCreateDto>? = emptyList(),
 ) {
     data class SalesDetailCreateDto(
         val productId: String,
@@ -85,11 +69,8 @@ data class SalesCreateDto(
         val quantity: Int,
         val price: Long,
         val cogs: Long,
-    )
-
-    data class SalesAddOnCreateDto(
-        val addOnId: String,
-        val addOnPrice: Long,
-        val quantity: Int,
+        val adminFee: Long,
+        val packingFee: Long,
+        val packingFeePaid: Long,
     )
 }

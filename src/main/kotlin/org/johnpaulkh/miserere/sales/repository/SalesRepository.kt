@@ -1,7 +1,6 @@
 package org.johnpaulkh.miserere.sales.repository
 
 import org.johnpaulkh.miserere.sales.entity.Sales
-import org.johnpaulkh.miserere.sales.entity.SalesAddOn
 import org.johnpaulkh.miserere.sales.entity.SalesDetail
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -28,8 +27,4 @@ interface SalesRepository : JpaRepository<Sales, String> {
 
 interface SalesDetailRepository : JpaRepository<SalesDetail, String> {
     fun findAllBySalesIdIn(salesIds: List<String>): List<SalesDetail>
-}
-
-interface SalesAddOnRepository : JpaRepository<SalesAddOn, String> {
-    fun findAllBySalesIdIn(salesIds: List<String>): List<SalesAddOn>
 }

@@ -1,7 +1,6 @@
 package org.johnpaulkh.miserere.sales.service
 
 import jakarta.transaction.Transactional
-import org.johnpaulkh.miserere.addon.repository.AddOnRepository
 import org.johnpaulkh.miserere.common.dto.Paginated
 import org.johnpaulkh.miserere.common.util.toInstant
 import org.johnpaulkh.miserere.common.util.today
@@ -11,9 +10,7 @@ import org.johnpaulkh.miserere.product.repository.VariantRepository
 import org.johnpaulkh.miserere.sales.dto.SalesCreateDto
 import org.johnpaulkh.miserere.sales.dto.SalesDto
 import org.johnpaulkh.miserere.sales.entity.Sales
-import org.johnpaulkh.miserere.sales.entity.SalesAddOn
 import org.johnpaulkh.miserere.sales.entity.SalesDetail
-import org.johnpaulkh.miserere.sales.repository.SalesAddOnRepository
 import org.johnpaulkh.miserere.sales.repository.SalesDetailRepository
 import org.johnpaulkh.miserere.sales.repository.SalesRepository
 import org.springframework.data.domain.PageRequest
@@ -26,22 +23,14 @@ import java.time.temporal.ChronoUnit
 class SalesService(
     private val salesRepository: SalesRepository,
     private val salesDetailRepository: SalesDetailRepository,
-    private val salesAddOnRepository: SalesAddOnRepository,
     private val productRepository: ProductRepository,
     private val variantRepository: VariantRepository,
-    private val addOnRepository: AddOnRepository,
 ) {
     @Transactional
     fun create(request: SalesCreateDto): SalesDto {
         val productIds = request.details.map { it.productId }
         val productMap = productRepository.findAllById(productIds).associateBy { it.id }
         val variantMap = variantRepository.findAllByProductIdIn(productIds).associateBy { it.id }
-        val addOnMap =
-            request.addOns
-                ?.map { it.addOnId }
-                ?.takeIf { it.isNotEmpty() }
-                ?.let { addOnRepository.findAllById(it).associateBy { addOn -> addOn.id } }
-                ?: emptyMap()
 
         val sales =
             Sales(
@@ -63,22 +52,13 @@ class SalesService(
                         price = detail.price,
                         cogs = detail.cogs,
                         quantity = detail.quantity,
+                        adminFee = detail.adminFee,
+                        packingFee = detail.packingFee,
+                        packingFeePaid = detail.packingFeePaid,
                     )
                 }.let { salesDetailRepository.saveAll(it) }
 
-        val addOns =
-            request.addOns
-                ?.map { addOn ->
-                    SalesAddOn(
-                        salesId = sales.id!!,
-                        addOnId = addOn.addOnId,
-                        addOnName = addOnMap[addOn.addOnId]?.name ?: "",
-                        addOnPrice = addOn.addOnPrice,
-                        quantity = addOn.quantity,
-                    )
-                }?.let { salesAddOnRepository.saveAll(it) }
-
-        return SalesDto.fromEntity(sales, details, addOns)
+        return SalesDto.fromEntity(sales, details)
     }
 
     fun list(
@@ -99,10 +79,6 @@ class SalesService(
             salesDetailRepository
                 .findAllBySalesIdIn(salesIds)
                 .groupBy { it.salesId }
-        val addOnsMapBySalesId =
-            salesAddOnRepository
-                .findAllBySalesIdIn(salesIds)
-                .groupBy { it.salesId }
 
         val salesResponse =
             salesPage
@@ -110,8 +86,7 @@ class SalesService(
                 .map {
                     SalesDto.fromEntity(
                         sales = it,
-                        details = detailsMapBySalesId[it.id]!!,
-                        addOns = addOnsMapBySalesId[it.id],
+                        details = detailsMapBySalesId[it.id] ?: emptyList(),
                     )
                 }
 

@@ -83,4 +83,23 @@ class ProductService(
 
         return ProductDto.fromEntity(product, variants)
     }
+
+    @Transactional
+    fun update(
+        id: String,
+        request: ProductDto,
+    ): ProductDto {
+        val product =
+            productRepository.findByIdOrNull(id)
+                ?: throw NotFoundException(message = "Product with id : $id not found", code = "PRD-404")
+
+        val variants = variantRepository.findByProductId(id)
+
+        return product
+            .copy(
+                name = request.name,
+                adminFeePercentage = request.adminFeePercentage,
+            ).let(productRepository::save)
+            .let { ProductDto.fromEntity(product, variants) }
+    }
 }

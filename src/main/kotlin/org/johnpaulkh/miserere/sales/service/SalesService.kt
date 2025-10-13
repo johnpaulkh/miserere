@@ -9,6 +9,7 @@ import org.johnpaulkh.miserere.product.repository.ProductRepository
 import org.johnpaulkh.miserere.product.repository.VariantRepository
 import org.johnpaulkh.miserere.sales.dto.SalesCreateDto
 import org.johnpaulkh.miserere.sales.dto.SalesDto
+import org.johnpaulkh.miserere.sales.dto.SalesSummaryResponseDto
 import org.johnpaulkh.miserere.sales.entity.Sales
 import org.johnpaulkh.miserere.sales.entity.SalesDetail
 import org.johnpaulkh.miserere.sales.repository.SalesDetailRepository
@@ -91,5 +92,28 @@ class SalesService(
                 }
 
         return Paginated.fromPage(salesPage, salesResponse)
+    }
+
+    fun summary(
+        startDateS: String?,
+        endDateS: String?,
+    ): SalesSummaryResponseDto {
+        val startDate = startDateS?.toInstant() ?: today().minus(7, ChronoUnit.DAYS)
+        val endDate = endDateS.toInstant() ?: tommorow()
+
+        val salesMapById =
+            salesRepository
+                .findByDateBetween(startDate, endDate, PageRequest.of(0, 1000))
+                .content
+                .associateBy { it.id!! }
+
+        val salesDetailMap =
+            salesMapById.keys
+                .let(salesDetailRepository::findAllBySalesIdIn)
+                .groupBy { it.salesId }
+
+        val salesMap = salesDetailMap.mapKeys { (salesId, _) -> salesMapById[salesId]!! }
+
+        return SalesSummaryResponseDto.fromEntity(salesMap)
     }
 }

@@ -6,6 +6,7 @@ import org.johnpaulkh.miserere.product.entity.Variant
 data class ProductDto(
     val id: String? = null,
     val name: String,
+    val adminFeePercentage: Double = 0.0,
     val variants: List<VariantDto>,
 ) {
     companion object {
@@ -15,6 +16,7 @@ data class ProductDto(
         ) = ProductDto(
             id = product.id,
             name = product.name,
+            adminFeePercentage = product.adminFeePercentage,
             variants = variants.map(VariantDto.Companion::fromEntity).sortedBy { it.name },
         )
     }

@@ -74,3 +74,46 @@ data class SalesCreateDto(
         val packingFeePaid: Long,
     )
 }
+
+data class SalesSummaryResponseDto(
+    val dailySummaries: MutableMap<String, SalesSummaryDto> = mutableMapOf(),
+    val summary: SalesSummaryDto = SalesSummaryDto(),
+) {
+    companion object {
+        fun fromEntity(sales: Map<Sales, List<SalesDetail>>) =
+            sales.entries
+                .fold(SalesSummaryResponseDto()) { response, entry ->
+                    val details = entry.value
+                    val sale = entry.key
+                    val date = sale.date.toDateString()
+
+                    val dailySummary = response.dailySummaries.getOrPut(date) { SalesSummaryDto() }
+                    details.forEach { detail ->
+                        dailySummary += detail
+                        response.summary += detail
+                    }
+                    response
+                }.also { it.dailySummaries.entries.sortedBy { dailySummaryEntry -> dailySummaryEntry.key } }
+    }
+
+    data class SalesSummaryDto(
+        var totalPrice: Long = 0,
+        var totalCogs: Long = 0,
+        var totalQuantity: Long = 0,
+        var totalAdminFee: Long = 0,
+        var totalPackingFee: Long = 0,
+        var totalPackingFeePaid: Long = 0,
+    ) {
+        val income: Long
+            get() = (totalPrice + totalPackingFeePaid) - (totalCogs + totalAdminFee + totalPackingFee)
+
+        operator fun plusAssign(salesDetail: SalesDetail) {
+            totalPrice += (salesDetail.price * salesDetail.quantity)
+            totalCogs += (salesDetail.cogs * salesDetail.quantity)
+            totalQuantity += salesDetail.quantity
+            totalAdminFee += salesDetail.adminFee
+            totalPackingFee += salesDetail.packingFee
+            totalPackingFeePaid += salesDetail.packingFeePaid
+        }
+    }
+}

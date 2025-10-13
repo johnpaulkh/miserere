@@ -26,5 +26,5 @@ interface SalesRepository : JpaRepository<Sales, String> {
 }
 
 interface SalesDetailRepository : JpaRepository<SalesDetail, String> {
-    fun findAllBySalesIdIn(salesIds: List<String>): List<SalesDetail>
+    fun findAllBySalesIdIn(salesIds: Collection<String>): List<SalesDetail>
 }

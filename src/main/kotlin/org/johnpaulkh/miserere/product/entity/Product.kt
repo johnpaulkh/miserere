@@ -12,6 +12,7 @@ data class Product(
     @UuidGenerator
     val id: String? = null,
     val name: String,
+    val adminFeePercentage: Double,
 )
 
 @Entity

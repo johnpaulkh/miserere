@@ -22,6 +22,12 @@ class SalesController(
         @RequestParam(required = false) endDate: String? = null,
     ) = salesService.list(page, size, startDate, endDate)
 
+    @GetMapping("/summary")
+    fun salesSummary(
+        @RequestParam(required = false) startDate: String? = null,
+        @RequestParam(required = false) endDate: String? = null,
+    ) = salesService.summary(startDate, endDate)
+
     @PostMapping
     fun create(
         @RequestBody request: SalesCreateDto,

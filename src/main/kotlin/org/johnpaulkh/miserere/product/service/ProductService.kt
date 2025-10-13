@@ -65,6 +65,7 @@ class ProductService(
         val product =
             Product(
                 name = request.name,
+                adminFeePercentage = request.adminFeePercentage,
             ).let {
                 productRepository.save(it)
             }
